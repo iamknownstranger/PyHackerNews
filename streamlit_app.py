@@ -10,8 +10,10 @@ from newspaper import Article
 
 # TODO: Add summary and description to the story
 
-
-openai.api_key = os.getenv("OPENAI_API_KEY")
+if "OPENAI_API_KEY" in os.environ:
+    openai.api_key = os.getenv("OPENAI_API_KEY")
+else:
+   openai.api_key = st.secrets['OPENAI_API_KEY']
 
 # Function to fetch Hacker News stories through the official API
 def fetch_hacker_news_stories():
