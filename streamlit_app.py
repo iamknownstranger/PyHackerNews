@@ -83,7 +83,7 @@ def main():
             story = get_story(story_id)
             st.subheader(f"[{story['title']}]({story['url']})")
             st.write(f"*Author:* {story['by']}")
-            st.write(f"**Summary:** {story['summary']}")
+            st.write(f"{story['summary']}")
             st.write("---")
 
 
