@@ -57,8 +57,22 @@ def get_story(story_id):
 # Streamlit app
 def main():
     st.title("Hacker News Top Stories")
-    st.markdown("This app displays the top stories from Hacker News.")
-
+    hide_streamlit_style = """
+                <style>
+                #MainMenu {visibility: hidden;}
+                footer {visibility: hidden;}
+                footer:after {
+                    content:"Made with 💓 by Chandra Sekhar Mullu"; 
+                    visibility: visible;
+                    display: block;
+                    position: relative;
+                    #background-color: red;
+                    padding: 5px;
+                    top: 2px;
+                }
+                </style>
+                """
+    st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
     stories = fetch_hacker_news_stories()
 
     for story_id in stories:
