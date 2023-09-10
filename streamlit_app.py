@@ -50,7 +50,7 @@ def main():
     for story_id in stories:
         with st.container():
             story = get_story(story_id)
-            st.header(f"[{story['title']}]({story['url']})")
+            st.subheader(f"[{story['title']}]({story['url']})")
             st.write(f"**Author:** {story['by']}")
             st.write(f"**Score:** {story['score']}")
             st.write(f"**Comments:** {story['descendants']}")
