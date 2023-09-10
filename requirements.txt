@@ -1,2 +1,1 @@
 newspaper3k
-nltk.downloader
