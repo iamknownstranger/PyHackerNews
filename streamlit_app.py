@@ -1,19 +1,21 @@
+import os
+import requests
+
+import openai
+import streamlit as st
+from retry import retry
+from newspaper import Article
+
 import nltk
 nltk.download('punkt')
 
-import os
-
-import openai
-import requests
-import streamlit as st
-from newspaper import Article
 
 # TODO: Add summary and description to the story
 
 if "OPENAI_API_KEY" in os.environ:
     openai.api_key = os.getenv("OPENAI_API_KEY")
 else:
-   openai.api_key = st.secrets['OPENAI_API_KEY']
+    openai.api_key = st.secrets['OPENAI_API_KEY']
 
 # Function to fetch Hacker News stories through the official API
 def fetch_hacker_news_stories():
@@ -21,6 +23,17 @@ def fetch_hacker_news_stories():
     response = requests.get(url)
     top_story_ids = response.json()[:5]
     return top_story_ids
+
+@retry(exceptions=openai.error.RateLimitError, tries=3, delay=15, backoff=2)
+def generate_summary(text):
+    # Geneate summary of the article using GPT-3
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo-16k-0613",
+        messages=[
+            {"role": "system", "content": f"You're a great research article writer! and very skillful in summarizing articles. I have a task for you."},
+            {"role": "user", "content": f"summarize the followning article briefly and use markdown formatting wherever needed like code snippets  and use bold *headers* instead of #headers: {text}"}])
+    summary = response["choices"][0]["message"]["content"]
+    return summary
 
 
 @st.cache_data()
@@ -40,17 +53,7 @@ def get_story(story_id):
 
     # Print the article title
     story["title"] = article.title
-
-    # Geneate summary of the article using GPT-3
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo-16k-0613",
-        messages=[
-            {"role": "system", "content": f"You're a great research article writer! and very skillful in summarizing articles. I have a task for you."},
-            {"role": "user", "content": f"summarize the followning article briefly and use markdown formatting wherever needed like code snippets with headers less than two stars: {article.text}"},
-        ],
-    )
-    summary = response["choices"][0]["message"]["content"]
-    story["summary"] = summary
+    story["summary"] = generate_summary(article.text)
 
     return story
 
