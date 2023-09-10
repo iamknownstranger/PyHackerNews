@@ -1,5 +1,5 @@
 import nltk
-nltk.download('all')
+nltk.download('punkt')
 
 import os
 
