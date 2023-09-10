@@ -1,20 +1,41 @@
 import streamlit as st
 import requests
 
+# TODO: Add summary and description to the story
+
+# # Import the library
+from newspaper import Article
+
+
 # Function to fetch Hacker News stories
 def fetch_hacker_news_stories():
     url = "https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty"
     response = requests.get(url)
-    top_story_ids = response.json()[:10]  # Get the top 10 story IDs
-    stories = []
+    top_story_ids = response.json()    
+    return top_story_ids
 
-    for story_id in top_story_ids:
-        story_url = f"https://hacker-news.firebaseio.com/v0/item/{story_id}.json?print=pretty"
-        story_response = requests.get(story_url)
-        story = story_response.json()
-        stories.append(story)
+def get_story(story_id):
+    url = f"https://hacker-news.firebaseio.com/v0/item/{story_id}.json?print=pretty"
+    response = requests.get(url)
+    story = response.json()
+    # st.write(f"**Title:** [{story['title']}]({story['url']})")
 
-    return stories
+    article = Article(story["url"])
+
+    # Download and parse the article
+    article.download()
+    article.parse()
+
+    # Perform natural language processing on the article
+    article.nlp()
+
+    # Print the article title
+    story["TITLE"] = article.title
+
+    # Print the article summary
+    story["SUMMARY"] = article.summary
+
+    return story
 
 # Streamlit app
 def main():
@@ -23,13 +44,15 @@ def main():
 
     stories = fetch_hacker_news_stories()
 
-    for story in stories:
-        st.write(f"**Title:** [{story['title']}]({story['url']})")
-        st.write(f"**Author:** {story['by']}")
-        st.write(f"**Score:** {story['score']}")
-        st.write(f"**Comments:** {story['descendants']}")
-        st.write("---")
-
+    for story_id in stories:
+        with st.container():
+            story = get_story(story_id)
+            st.header(f"[{story['title']}]({story['url']})")
+            st.write(f"**Author:** {story['by']}")
+            st.write(f"**Score:** {story['score']}")
+            st.write(f"**Comments:** {story['descendants']}")
+            st.write(f"**Summary:** {story['SUMMARY']}")
+            st.write("---")
 if __name__ == "__main__":
     main()
 
