@@ -75,7 +75,7 @@ def main():
                 }
                 </style>
                 """
-    st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
+    st.markdown(hide_streamlit_style, unsafe_allow_html=True)
     stories = fetch_hacker_news_stories()
 
     for story_id in stories:
@@ -85,7 +85,6 @@ def main():
             st.write(f"*Author:* {story['by']}")
             st.write(f"{story['summary']}")
             st.write("---")
-
 
 if __name__ == "__main__":
     main()
